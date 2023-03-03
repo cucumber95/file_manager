@@ -36,17 +36,33 @@ void down() {
 void enter() {
     if (files[cursor_pos]->d_type == DT_DIR) {
         if (strcmp(files[cursor_pos]->d_name, "..") != 0) {
+            int old_len = path_len;
             path[path_len++] = '/';
             path[path_len] = '\0';
             path_len += snprintf(path + path_len, PATH_MAX, "%s",
                                  files[cursor_pos]->d_name);
+            DIR *dir = opendir(path);
+            if (dir == NULL) {
+                path_len = old_len;
+                path[path_len] = '\0';
+                return;
+            }
+            closedir(dir);
             scan_dir();
             print_dir();
         } else {
+            int old_len = path_len;
             while (path[path_len] != '/') {
                 path_len--;
             }
             path[path_len] = '\0';
+            DIR *dir = opendir(path);
+            if (dir == NULL) {
+                path[path_len] = '/';
+                path_len = old_len;
+                return;
+            }
+            closedir(dir);
             scan_dir();
             print_dir();
         }
