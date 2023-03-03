@@ -1,9 +1,4 @@
-#include <dirent.h>
-#include <ncurses.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#include "print.h"
 
 extern char path[PATH_MAX];
 extern int path_len;

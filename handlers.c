@@ -1,13 +1,5 @@
-#include <dirent.h>
-#include <fcntl.h>
-#include <ncurses.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include "handlers.h"
+#include "print.h"
 
 extern char path[PATH_MAX];
 extern int path_len;
@@ -18,10 +10,6 @@ extern int hidden_files;
 extern int dirent_size;
 extern struct dirent **files;
 extern int show_hidden_files;
-
-void exit_prog();
-void scan_dir();
-void print_dir();
 
 void up() {
     if (cursor_pos == 0) {
@@ -171,7 +159,7 @@ void c_paste() {
     }
     int readed = 0;
     while (1) {
-        int cnt = read(fd_out, buf + readed, size);
+        int cnt = read(fd_out, (char *)buf + readed, size);
         if (cnt <= 0) {
             break;
         }

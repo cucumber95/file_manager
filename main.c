@@ -6,6 +6,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "handlers.h"
+#include "print.h"
 
 char path[PATH_MAX];
 int path_len = 0;
@@ -18,18 +20,6 @@ int buffer_size = 0;
 struct dirent **files = NULL;
 int show_hidden_files = 0;
 char c_path[PATH_MAX];
-
-void exit_prog();
-void scan_dir();
-void print_dir();
-void up();
-void down();
-void enter();
-void delete();
-void change_hide_mode();
-void cut();
-void copy();
-void c_paste();
 
 int main() {
     getcwd(path, PATH_MAX);
