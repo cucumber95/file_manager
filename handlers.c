@@ -130,7 +130,6 @@ void c_paste() {
         return;
     }
     if (access(paste.path, F_OK) != 0) {
-        exit_prog();
         paste.mode = NOTHING;
         return;
     }
@@ -144,7 +143,6 @@ void c_paste() {
     path_len = old_len;
     path[path_len] = '\0';
     if (fd_in == -1 || fd_out == -1) {
-        exit_prog();
         paste.mode = NOTHING;
         close(fd_in);
         close(fd_out);
@@ -155,7 +153,6 @@ void c_paste() {
     int size = lseek(fd_out, 0, SEEK_END);
     lseek(fd_out, 0, SEEK_SET);
     if (ftruncate(fd_in, size) == -1) {
-        exit_prog();
         paste.mode = NOTHING;
         close(fd_in);
         close(fd_out);
@@ -163,9 +160,8 @@ void c_paste() {
         print_dir();
         return;
     }
-    void *buf = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd_in, 0);
+    void *buf = mmap(NULL, size + 1, PROT_READ | PROT_WRITE, MAP_SHARED, fd_in, 0);
     if (buf == MAP_FAILED) {
-        exit_prog();
         paste.mode = NOTHING;
         close(fd_in);
         close(fd_out);
