@@ -17,6 +17,7 @@ int dirent_size = 0;
 int buffer_size = 0;
 struct dirent **files = NULL;
 int show_hidden_files = 0;
+char c_path[PATH_MAX];
 
 void exit_prog();
 void scan_dir();
@@ -26,6 +27,9 @@ void down();
 void enter();
 void delete();
 void change_hide_mode();
+void cut();
+void copy();
+void c_paste();
 
 int main() {
     getcwd(path, PATH_MAX);
@@ -39,14 +43,6 @@ int main() {
     term_height = getmaxy(stdscr);
 
     start_color();
-    // init_pair(1, COLOR_WHITE, COLOR_BLACK);
-    // init_pair(2, COLOR_CYAN, COLOR_BLACK);
-    // init_pair(3, COLOR_MAGENTA, COLOR_BLACK);
-    // init_pair(4, COLOR_BLUE, COLOR_BLACK);
-    // init_pair(5, COLOR_WHITE, COLOR_GREEN);
-    // init_pair(6, COLOR_CYAN, COLOR_GREEN);
-    // init_pair(7, COLOR_MAGENTA, COLOR_GREEN);
-    // init_pair(8, COLOR_BLUE, COLOR_GREEN);
 
     init_pair(1, COLOR_WHITE, COLOR_BLACK);
     init_pair(2, COLOR_CYAN, COLOR_BLACK);
@@ -78,6 +74,15 @@ int main() {
         }
         if (c == 'h') {
             change_hide_mode();
+        }
+        if (c == 'x') {
+            cut();
+        }
+        if (c == 'c') {
+            copy();
+        }
+        if (c == 'v') {
+            c_paste();
         }
     }
 
