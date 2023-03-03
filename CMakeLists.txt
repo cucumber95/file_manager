@@ -4,7 +4,7 @@ project(file_manager)
 
 add_executable(file_manager main.c print.c handlers.c)
 
-include_directories(/usr/include)
+include_directories(${CURSES_INCLUDE_DIR})
 
 target_link_libraries(file_manager ncurses)
 
