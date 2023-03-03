@@ -14,6 +14,7 @@ extern int hidden_files;
 extern int dirent_size;
 extern int buffer_size;
 extern struct dirent **files;
+extern int show_hidden_files;
 
 void exit_prog() {
     endwin();
@@ -55,6 +56,12 @@ void scan_dir() {
     struct dirent *cur_file;
     int cnt = 0;
     while ((cur_file = readdir(dir)) != NULL) {
+        if (strcmp(cur_file->d_name, ".") == 0) {
+            continue;
+        }
+        if (!show_hidden_files && cur_file->d_name[0] == '.' && strcmp(cur_file->d_name, "..") != 0) {
+            continue;
+        }
         cnt++;
     }
     if (cnt > buffer_size) {
@@ -62,42 +69,66 @@ void scan_dir() {
     }
     closedir(dir);
     dir = opendir(path);
-    for (int i = 0; i < cnt; ++i) {
-        cur_file = readdir(dir);
-        files[i] = cur_file;
+    int i = 0;
+    while ((cur_file = readdir(dir)) != NULL) {
+        if (strcmp(cur_file->d_name, ".") == 0) {
+            continue;
+        }
+        if (!show_hidden_files && cur_file->d_name[0] == '.' && strcmp(cur_file->d_name, "..") != 0) {
+            continue;
+        }
+        files[i++] = cur_file;
     }
     qsort(files, cnt, sizeof(*files), comp);
-    dirent_size = cnt - 1;
+    dirent_size = cnt;
     closedir(dir);
 }
 
 void print_dir() {
+    bkgdset(COLOR_PAIR(1));
+    if (show_hidden_files) {
+        bkgdset(COLOR_PAIR(5));
+    }
     clear();
     for (int i = hidden_files;
          i < hidden_files + term_height && i < dirent_size; ++i) {
         if (i == cursor_pos) {
             move(i - hidden_files, 0);
             if (files[i]->d_type == DT_DIR) {
-                attron(COLOR_PAIR(1));
+                attrset(COLOR_PAIR(2));
+                if (show_hidden_files) {
+                    attrset(COLOR_PAIR(6));
+                }
                 printw("-> ");
-                attroff(COLOR_PAIR(1));
             } else {
+                attrset(COLOR_PAIR(1));
+                if (show_hidden_files) {
+                    attrset(COLOR_PAIR(5));
+                }
                 printw("-> ");
             }
         }
         move(i - hidden_files, 3);
         if (files[i]->d_type == DT_DIR) {
-            attron(COLOR_PAIR(1));
+            attrset(COLOR_PAIR(2));
+            if (show_hidden_files) {
+                attrset(COLOR_PAIR(6));
+            }
             printw("%s", files[i]->d_name);
-            attroff(COLOR_PAIR(1));
         } else {
+            attrset(COLOR_PAIR(1));
+            if (show_hidden_files) {
+                attrset(COLOR_PAIR(5));
+            }
             printw("%s", files[i]->d_name);
         }
         move(i - hidden_files, term_width - 12);
         if (files[i]->d_type == DT_DIR) {
-            attron(COLOR_PAIR(3));
+            attrset(COLOR_PAIR(4));
+            if (show_hidden_files) {
+                attrset(COLOR_PAIR(8));
+            }
             printw("DIR");
-            attroff(COLOR_PAIR(3));
         } else {
             int old_len = path_len;
             path[path_len++] = '/';
@@ -106,9 +137,11 @@ void print_dir() {
                 snprintf(path + path_len, PATH_MAX, "%s", files[i]->d_name);
             struct stat buf;
             if (stat(path, &buf) != -1) {
-                attron(COLOR_PAIR(2));
+                attrset(COLOR_PAIR(3));
+                if (show_hidden_files) {
+                    attrset(COLOR_PAIR(7));
+                }
                 printw("%ld", buf.st_size);
-                attroff(COLOR_PAIR(2));
             }
             path_len = old_len;
             path[path_len] = '\0';

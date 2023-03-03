@@ -15,6 +15,7 @@ extern int cursor_pos;
 extern int hidden_files;
 extern int dirent_size;
 extern struct dirent **files;
+extern int show_hidden_files;
 
 void scan_dir();
 void print_dir();
@@ -43,12 +44,21 @@ void down() {
 
 void enter() {
     if (files[cursor_pos]->d_type == DT_DIR) {
-        path[path_len++] = '/';
-        path[path_len] = '\0';
-        path_len += snprintf(path + path_len, PATH_MAX, "%s",
-                             files[cursor_pos]->d_name);
-        scan_dir();
-        print_dir();
+        if (strcmp(files[cursor_pos]->d_name, "..") != 0) {
+            path[path_len++] = '/';
+            path[path_len] = '\0';
+            path_len += snprintf(path + path_len, PATH_MAX, "%s",
+                                 files[cursor_pos]->d_name);
+            scan_dir();
+            print_dir();
+        } else {
+            while (path[path_len] != '/') {
+                path_len--;
+            }
+            path[path_len] = '\0';
+            scan_dir();
+            print_dir();
+        }
     }
 }
 
@@ -76,4 +86,10 @@ void delete () {
         path_len = old_len;
         path[path_len] = '\0';
     }
+}
+
+void change_hide_mode() {
+    show_hidden_files ^= 1;
+    scan_dir();
+    print_dir();
 }
